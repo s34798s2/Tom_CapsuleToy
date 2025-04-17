@@ -1,243 +1,334 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row =>
-                    row.some(cell => cell !== '' && cell !== null && cell !== undefined)
-                );
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>進階扭蛋機</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        .gacha-container {
-            text-align: center;
-            position: relative;
-        }
-        .gacha-machine {
-            width: 300px;
-            height: 400px;
-            background-color: #ff6f61;
-            border-radius: 20px;
-            position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        .gacha-balls {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 300px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-        }
-        .gacha-ball {
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle, #fff 30%, #ffd700 70%);
-            border-radius: 50%;
-            margin: 10px;
-            animation: roll 2s infinite;
-        }
-        .shake {
-            animation: shake 0.5s ease-in-out 3;
-        }
-        .selected-ball {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, #fff 30%, #ff4500 70%);
-            border-radius: 50%;
-            position: absolute;
-            top: 320px;
-            left: 110px;
-            animation: drop 1s ease-in-out forwards, open 1s 1s forwards;
-        }
-        .gacha-result {
-            position: absolute;
-            top: 320px;
-            left: 110px;
-            width: 80px;
-            height: 80px;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            opacity: 0;
-            animation: reveal 1s 2s forwards;
-        }
-        .gacha-button {
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-        .gacha-button:hover {
-            background-color: #45a049;
-        }
-        .gacha-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: red;
-            animation: confetti-fall 3s linear forwards;
-        }
-        @keyframes roll {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(20px) rotate(180deg); }
-            100% { transform: translateY(0) rotate(360deg); }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        @keyframes drop {
-            0% { transform: translateY(-300px); opacity: 1; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes open {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-        @keyframes reveal {
-            0% { opacity: 0; transform: scale(0); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes confetti-fall {
-            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>扭蛋機</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .settings-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .settings-panel {
+      position: absolute;
+      top: 60px;
+      right: 12px;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+      z-index: 10;
+      width: 250px;
+    }
+
+    .settings-panel textarea {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .settings-panel input[type="checkbox"] {
+      margin-right: 5px;
+    }
+
+    .settings-panel button {
+      float: right;
+      margin-top: 10px;
+    }
+
+    .gacha-container {
+      text-align: center;
+    }
+
+    .gacha-machine {
+      width: 300px;
+      height: 400px;
+      background-color: #ff6f61;
+      border-radius: 20px;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .gacha-balls {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 300px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gacha-ball {
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, #fff 30%, #ffd700 70%);
+      border-radius: 50%;
+      margin: 10px;
+      animation: roll 2s infinite;
+    }
+
+    .selected-ball {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      position: absolute;
+      top: 320px;
+      left: 110px;
+      display: none;
+      animation: bounceOut 1s ease-out forwards;
+    }
+
+    .gacha-result {
+      position: absolute;
+      top: 25%;
+      left: 12%;
+      padding: 20px 40px;
+      font-size: 30px;
+      font-weight: bold;
+      background-color: #fff;
+      color: #ff4500;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      opacity: 0;
+      display: none;
+      animation: reveal 1s 1.5s forwards;
+      z-index: 20;
+    }
+
+    .gacha-button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .remaining-count {
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    @keyframes roll {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(20px) rotate(180deg); }
+      100% { transform: translateY(0) rotate(360deg); }
+    }
+
+    @keyframes bounceOut {
+      0% { transform: translateY(-300px) scale(0.5); opacity: 0; }
+      50% { transform: translateY(-150px) scale(1.1); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes reveal {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes flash {
+      0%, 100% { background-color: #ff6f61; }
+      50% { background-color: #ffe066; }
+    }
+
+    .flash-bg {
+      animation: flash 0.2s alternate 10;
+    }
+
+    /* SSR 特效 */
+    .ssr-effect {
+      color: #FFD700;
+      background: radial-gradient(circle, #fff, #ff69b4);
+      border: 4px solid gold;
+      text-shadow: 0 0 10px #FFD700, 0 0 20px #FF69B4;
+      box-shadow: 0 0 30px #FFD700;
+      animation: ssrGlow 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes ssrGlow {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.1); opacity: 0.85; }
+    }
+  </style>
 </head>
 <body>
-    <div class="gacha-container">
-        <div class="gacha-machine">
-            <div class="gacha-balls" id="gachaBalls">
-                <div class="gacha-ball"></div>
-                <div class="gacha-ball"></div>
-                <div class="gacha-ball"></div>
-                <div class="gacha-ball"></div>
-                <div class="gacha-ball"></div>
-            </div>
-            <div class="selected-ball" id="selectedBall" style="display: none;"></div>
-            <div class="gacha-result" id="result" style="display: none;"></div>
-        </div>
-        <button class="gacha-button" id="gachaButton" onclick="spinGacha()">扭蛋</button>
+  <button class="settings-btn" onclick="toggleSettings(); event.stopPropagation()">⚙️</button>
+  <div class="settings-panel" id="settingsPanel">
+    <textarea id="inputPrizes" placeholder="輸入扭蛋內容，如：\n[特獎]*1\n一頒獎*2"></textarea>
+    <div>
+      <label><input type="checkbox" id="removeAfterDraw"/> 抽到後刪除</label>
     </div>
+    <button onclick="updatePrizes()">更新</button>
+  </div>
 
-    <script>
-        const prizes = [
-            "特獎！",
-            "一等獎",
-            "二等獎",
-            "三等獎",
-            "感謝參與"
-        ];
-        let isResultDisplayed = false;
+  <div class="gacha-container">
+    <div class="remaining-count" id="remainingCount">剩餘：0 顆</div>
+    <div class="gacha-machine">
+      <div class="gacha-balls" id="gachaBalls">
+        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ffcc00);"></div>
+        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #66ccff);"></div>
+        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ff99cc);"></div>
+      </div>
+      <div class="selected-ball" id="selectedBall"></div>
+      <div class="gacha-result" id="result"></div>
+    </div>
+    <button class="gacha-button" id="gachaButton" onclick="spinGacha()">扭蛋</button>
+  </div>
 
-        function spinGacha() {
-            const gachaButton = document.getElementById('gachaButton');
-            const gachaBalls = document.getElementById('gachaBalls');
-            const selectedBall = document.getElementById('selectedBall');
-            const resultElement = document.getElementById('result');
+  <!-- 音效 -->
+  <audio id="drawSound" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
 
-            if (isResultDisplayed) {
-                // 重置為新一輪
-                gachaButton.disabled = true;
-                selectedBall.style.display = 'none';
-                resultElement.style.display = 'none';
-                gachaBalls.style.display = 'flex';
-                isResultDisplayed = false;
-                setTimeout(() => {
-                    gachaButton.disabled = false;
-                }, 500);
-                return;
-            }
+  <script>
+    let prizePool = [];
+    let rawInput = "";
 
-            gachaButton.disabled = true;
-
-            // 搖動效果
-            gachaBalls.classList.add('shake');
-
-            // 1.5秒後移除搖動並顯示選中的扭蛋
-            setTimeout(() => {
-                gachaBalls.classList.remove('shake');
-                gachaBalls.style.display = 'none';
-                selectedBall.style.display = 'block';
-            }, 1500);
-
-            // 2.5秒後顯示結果
-            setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * prizes.length);
-                resultElement.textContent = prizes[randomIndex];
-                resultElement.style.display = 'flex';
-                createConfetti();
-                isResultDisplayed = true;
-                gachaButton.disabled = false;
-                gachaButton.textContent = '再玩一次';
-            }, 2500);
+    function parsePrizeInput(input) {
+	  document.getElementById("inputPrizes").value = "[特獎]*1\n二等獎*2";
+      const lines = input.trim().split('\n');
+      const result = [];
+      lines.forEach(line => {
+        const match = line.match(/^(.+?)(\*(\d+))?$/);
+        if (match) {
+          const name = match[1].trim();
+          const count = parseInt(match[3] || 1);
+          for (let i = 0; i < count; i++) result.push(name);
         }
+      });
+      return result;
+    }
 
-        function createConfetti() {
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
-                confetti.style.animationDelay = Math.random() * 2 + 's';
-                document.body.appendChild(confetti);
-                setTimeout(() => confetti.remove(), 3000);
-            }
-        }
-    </script>
+    function updatePrizePoolDisplay() {
+      const remaining = prizePool.length;
+      document.getElementById("remainingCount").textContent = `剩餘：${remaining} 顆`;
+    }
+
+    function updatePrizes() {
+      const input = document.getElementById("inputPrizes").value;
+      rawInput = input;
+      prizePool = parsePrizeInput(input);
+      updatePrizePoolDisplay();
+      toggleSettings(false);
+    }
+
+    function toggleSettings(forceClose = null) {
+      const panel = document.getElementById("settingsPanel");
+      const resultElement = document.getElementById("result");
+      resultElement.style.display = 'none';
+      resultElement.style.opacity = '0';
+
+      if (forceClose === true) {
+        panel.style.display = "none";
+      } else {
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
+      }
+    }
+
+    document.addEventListener("click", function (e) {
+      const panel = document.getElementById("settingsPanel");
+      const settingsBtn = document.querySelector(".settings-btn");
+      if (!panel.contains(e.target) && !settingsBtn.contains(e.target)) {
+        toggleSettings(true);
+      }
+    });
+
+    function getRandomColor() {
+      const colors = ['#ffd700', '#66ccff', '#ff99cc', '#ff6666', '#cc99ff', '#99ff99'];
+      const random = () => colors[Math.floor(Math.random() * colors.length)];
+      return `radial-gradient(circle, #fff 30%, ${random()} 70%)`;
+    }
+
+    function isSSRPrize(name) {
+      return name.startsWith("[") && name.endsWith("]");
+    }
+
+    function cleanPrizeName(name) {
+      return name.replace(/^\[|\]$/g, "");
+    }
+
+    function spinGacha() {
+      const gachaButton = document.getElementById('gachaButton');
+      const gachaBalls = document.getElementById('gachaBalls');
+      const selectedBall = document.getElementById('selectedBall');
+      const resultElement = document.getElementById('result');
+      const machine = document.querySelector('.gacha-machine');
+      const removeAfterDraw = document.getElementById("removeAfterDraw").checked;
+
+      resultElement.style.display = 'none';
+      selectedBall.style.display = 'none';
+      resultElement.classList.remove("ssr-effect");
+
+      if (prizePool.length === 0) {
+        alert("目前沒有扭蛋可以抽囉！");
+        return;
+      }
+
+      document.getElementById("drawSound").play();
+      gachaButton.disabled = true;
+      gachaBalls.classList.add('shake');
+
+      setTimeout(() => {
+        gachaBalls.classList.remove('shake');
+        selectedBall.style.background = getRandomColor();
+        selectedBall.style.display = 'block';
+        <!-- machine.classList.add('flash-bg'); -->
+		
+		const randomIndex = Math.floor(Math.random() * prizePool.length);
+		const rawPrize = prizePool[randomIndex];
+		const isSSR = isSSRPrize(rawPrize);
+		const prize = cleanPrizeName(rawPrize);
+		
+		if (isSSR) {
+			machine.classList.add('flash-bg');
+		  }
+
+        setTimeout(() => {
+          resultElement.textContent = prize;
+          resultElement.style.display = 'block';
+          resultElement.classList.toggle("ssr-effect", isSSR);
+          gachaButton.disabled = false;
+
+          if (removeAfterDraw) {
+            prizePool.splice(randomIndex, 1);
+            updatePrizePoolDisplay();
+          }
+
+          setTimeout(() => {
+            machine.classList.remove('flash-bg');
+          }, 2000);
+        }, 1000);
+      }, 1000);
+    }
+
+    // 預設載入
+    window.onload = () => {
+      updatePrizes();
+    };
+  </script>
 </body>
 </html>
