@@ -1,416 +1,210 @@
 <!DOCTYPE html>
-
 <html lang="zh-TW">
-
 <head>
-
-  <meta charset="UTF-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>扭蛋機</title>
-
-  <style>
-
-    body {
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      justify-content: center;
-
-      height: 100vh;
-
-      margin: 0;
-
-      background-color: #f0f0f0;
-
-      font-family: Arial, sans-serif;
-
-      overflow: hidden;
-
-      position: relative;
-
-    }
-
-
-
-    .settings-btn {
-
-      position: absolute;
-
-      top: 10px;
-
-      right: 10px;
-
-      background: none;
-
-      border: none;
-
-      font-size: 24px;
-
-      cursor: pointer;
-
-    }
-
-
-
-    .settings-panel {
-
-      position: absolute;
-
-      top: 60px;
-
-      right: 12px;
-
-      background: white;
-
-      border: 1px solid #ccc;
-
-      padding: 15px;
-
-      border-radius: 8px;
-
-      display: none;
-
-      z-index: 10;
-
-      width: 250px;
-
-    }
-
-
-
-    .settings-panel textarea {
-
-      width: 100%;
-
-      height: 80px;
-
-      margin-bottom: 10px;
-
-    }
-
-
-
-    .settings-panel input[type="checkbox"] {
-
-      margin-right: 5px;
-
-    }
-
-
-
-    .settings-panel button {
-
-      float: right;
-
-      margin-top: 10px;
-
-    }
-
-
-
-    .gacha-container {
-
-      text-align: center;
-
-    }
-
-
-
-    .gacha-machine {
-
-      width: 300px;
-
-      height: 400px;
-
-      background-color: #ff6f61;
-
-      border-radius: 20px;
-
-      position: relative;
-
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-      overflow: hidden;
-
-    }
-
-
-
-    .gacha-balls {
-
-      position: absolute;
-
-      top: 0;
-
-      width: 100%;
-
-      height: 300px;
-
-      display: flex;
-
-      flex-wrap: wrap;
-
-      justify-content: center;
-
-      align-items: center;
-
-    }
-
-
-
-    .gacha-ball {
-
-      width: 50px;
-
-      height: 50px;
-
-      background: radial-gradient(circle, #fff 30%, #ffd700 70%);
-
-      border-radius: 50%;
-
-      margin: 10px;
-
-      animation: roll 2s infinite;
-
-    }
-
-
-
-    .selected-ball {
-
-      width: 80px;
-
-      height: 80px;
-
-      border-radius: 50%;
-
-      position: absolute;
-
-      top: 320px;
-
-      left: 110px;
-
-      display: none;
-
-      animation: bounceOut 1s ease-out forwards;
-
-    }
-
-
-
-    .gacha-result {
-
-      position: absolute;
-
-      top: 25%;
-
-      left: 12%;
-
-      padding: 20px 40px;
-
-      font-size: 30px;
-
-      font-weight: bold;
-
-      background-color: #fff;
-
-      color: #ff4500;
-
-      border-radius: 10px;
-
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-
-      opacity: 0;
-
-      display: none;
-
-      animation: reveal 1s 1.5s forwards;
-
-      z-index: 20;
-
-    }
-
-
-
-    .gacha-button {
-
-      padding: 10px 20px;
-
-      font-size: 18px;
-
-      background-color: #4CAF50;
-
-      color: white;
-
-      border: none;
-
-      border-radius: 5px;
-
-      cursor: pointer;
-
-      margin-top: 20px;
-
-    }
-
-
-
-    .remaining-count {
-
-      margin-bottom: 10px;
-
-      font-size: 18px;
-
-      font-weight: bold;
-
-    }
-
-
-
-    @keyframes roll {
-
-      0% { transform: translateY(0) rotate(0deg); }
-
-      50% { transform: translateY(20px) rotate(180deg); }
-
-      100% { transform: translateY(0) rotate(360deg); }
-
-    }
-
-
-
-    @keyframes bounceOut {
-
-      0% { transform: translateY(-300px) scale(0.5); opacity: 0; }
-
-      50% { transform: translateY(-150px) scale(1.1); opacity: 1; }
-
-      100% { transform: translateY(0) scale(1); opacity: 1; }
-
-    }
-
-
-
-    @keyframes reveal {
-
-      0% { transform: scale(0); opacity: 0; }
-
-      100% { transform: scale(1); opacity: 1; }
-
-    }
-
-
-
-    @keyframes flash {
-
-      0%, 100% { background-color: #ff6f61; }
-
-      50% { background-color: #ffe066; }
-
-    }
-
-
-
-    .flash-bg {
-
-      animation: flash 0.2s alternate 10;
-
-    }
-
-
-
-    /* SSR 特效 */
-
-    .ssr-effect {
-
-      color: #FFD700;
-
-      background: radial-gradient(circle, #fff, #ff69b4);
-
-      border: 4px solid gold;
-
-      text-shadow: 0 0 10px #FFD700, 0 0 20px #FF69B4;
-
-      box-shadow: 0 0 30px #FFD700;
-
-      animation: ssrGlow 1s ease-in-out infinite alternate;
-
-    }
-
-
-
-    @keyframes ssrGlow {
-
-      from { transform: scale(1); opacity: 1; }
-
-      to { transform: scale(1.1); opacity: 0.85; }
-
-    }
-
-  </style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>扭蛋機</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .settings-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .settings-panel {
+      position: absolute;
+      top: 60px;
+      right: 12px;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+      z-index: 10;
+      width: 250px;
+    }
+
+    .settings-panel textarea {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .settings-panel input[type="checkbox"] {
+      margin-right: 5px;
+    }
+
+    .settings-panel button {
+      float: right;
+      margin-top: 10px;
+    }
+
+    .gacha-container {
+      text-align: center;
+    }
+
+    .gacha-machine {
+      width: 300px;
+      height: 400px;
+      background-color: #ff6f61;
+      border-radius: 20px;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .gacha-balls {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 300px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gacha-ball {
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, #fff 30%, #ffd700 70%);
+      border-radius: 50%;
+      margin: 10px;
+      animation: roll 2s infinite;
+    }
+
+    .selected-ball {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      position: absolute;
+      top: 320px;
+      left: 110px;
+      display: none;
+      animation: bounceOut 1s ease-out forwards;
+    }
+
+    .gacha-result {
+      position: absolute;
+      top: 25%;
+      left: 12%;
+      padding: 20px 40px;
+      font-size: 30px;
+      font-weight: bold;
+      background-color: #fff;
+      color: #ff4500;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      opacity: 0;
+      display: none;
+      animation: reveal 1s 1.5s forwards;
+      z-index: 20;
+    }
+
+    .gacha-button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .remaining-count {
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    @keyframes roll {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(20px) rotate(180deg); }
+      100% { transform: translateY(0) rotate(360deg); }
+    }
+
+    @keyframes bounceOut {
+      0% { transform: translateY(-300px) scale(0.5); opacity: 0; }
+      50% { transform: translateY(-150px) scale(1.1); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes reveal {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes flash {
+      0%, 100% { background-color: #ff6f61; }
+      50% { background-color: #ffe066; }
+    }
+
+    .flash-bg {
+      animation: flash 0.2s alternate 10;
+    }
+
+    /* SSR 特效 */
+    .ssr-effect {
+      color: #FFD700;
+      background: radial-gradient(circle, #fff, #ff69b4);
+      border: 4px solid gold;
+      text-shadow: 0 0 10px #FFD700, 0 0 20px #FF69B4;
+      box-shadow: 0 0 30px #FFD700;
+      animation: ssrGlow 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes ssrGlow {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.1); opacity: 0.85; }
+    }
+  </style>
 </head>
-
 <body>
+  <button class="settings-btn" onclick="toggleSettings(); event.stopPropagation()">⚙️</button>
+  <div class="settings-panel" id="settingsPanel">
+    <textarea id="inputPrizes" placeholder="輸入扭蛋內容，如：\n[特獎]*1\n一頒獎*2"></textarea>
+    <div>
+      <label><input type="checkbox" id="removeAfterDraw"/> 抽到後刪除</label>
+    </div>
+    <button onclick="updatePrizes()">更新</button>
+  </div>
 
-  <button class="settings-btn" onclick="toggleSettings(); event.stopPropagation()">⚙️</button>
+  <div class="gacha-container">
+    <div class="remaining-count" id="remainingCount">剩餘：0 顆</div>
+    <div class="gacha-machine">
+      <div class="gacha-balls" id="gachaBalls">
+        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ffcc00);"></div>
+        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #66ccff);"></div>
+        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ff99cc);"></div>
+      </div>
+      <div class="selected-ball" id="selectedBall"></div>
+      <div class="gacha-result" id="result"></div>
+    </div>
+    <button class="gacha-button" id="gachaButton" onclick="spinGacha()">扭蛋</button>
+  </div>
 
-  <div class="settings-panel" id="settingsPanel">
+  <!-- 音效 -->
+  <audio id="drawSound" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
 
-    <textarea id="inputPrizes" placeholder="輸入扭蛋內容，如：\n[特獎]*1\n一頒獎*2"></textarea>
-
-    <div>
-
-      <label><input type="checkbox" id="removeAfterDraw"/> 抽到後刪除</label>
-
-    </div>
-
-    <button onclick="updatePrizes()">更新</button>
-
-  </div>
-
-
-
-  <div class="gacha-container">
-
-    <div class="remaining-count" id="remainingCount">剩餘：0 顆</div>
-
-    <div class="gacha-machine">
-
-      <div class="gacha-balls" id="gachaBalls">
-
-        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ffcc00);"></div>
-
-        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #66ccff);"></div>
-
-        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ff99cc);"></div>
-
-      </div>
-
-      <div class="selected-ball" id="selectedBall"></div>
-
-      <div class="gacha-result" id="result"></div>
-
-    </div>
-
-    <button class="gacha-button" id="gachaButton" onclick="spinGacha()">扭蛋</button>
-
-  </div>
-
-
-
-  <!-- 音效 -->
-
-  <audio id="drawSound" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
-
-
-
-    <script>
+  <script>
     // --- 變更開始 ---
 
     // 1. 將獎項內容和設定狀態宣告成全域變數，並給予預設值
@@ -566,7 +360,6 @@
     };
     // --- 變更結束 ---
   </script>
-
+   
 </body>
-
 </html>
