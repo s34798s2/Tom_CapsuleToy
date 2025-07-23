@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Tom 設計的趣味扭蛋機，提供線上隨機抽獎功能，可自訂獎品內容與數量。">
-  <title>扭蛋機</title>
+  <meta name="description" content="Tom's fun gashapon machine offers an online random draw feature, allowing customizable prize items and quantities.">
+  <title>Gashapon machine</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
      @font-face {
@@ -131,7 +131,7 @@
 	  display: none;
 	  justify-content: center;
 	  flex-wrap: wrap;
-	  animation: bounceOut 1s ease-out forwards;
+	  animation: bounceOut 2s ease-out forwards;
 	  z-index: 3;
 
 	  /* 復古遊戲風格新增部分 */
@@ -141,9 +141,7 @@
 		-4px -4px 0px rgba(255, 255, 255, 0.3); /* 另一邊的陰影，增加立體感 */
 	  border: 2px solid #333; /* 增加一個深色邊框 */
 	  background-color: #A0A0A0; /* 給一個比較灰暗的背景色，像以前的遊戲畫面 */
-	  font-family: 'Press Start 2P', cursive; /* 這裡可以引入一個像素字體，讓文字也復古 */
-	  color: #FFF; /* 復古字體通常是白色或亮色 */
-	  text-shadow: 2px 2px 0px #000; /* 像素字體的陰影效果 */
+
 	}
 
 	.gacha-result {
@@ -221,10 +219,14 @@
 
 
     @keyframes bounceOut {
-      0% { transform: translateX(-50%) translateY(-300px) scale(0.5); opacity: 0; }
-      50% { transform: translateX(-50%) translateY(-150px) scale(1.1); opacity: 1; }
-      100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
-    }
+	  0% { transform: translateX(-50%) translateY(-400px) scale(0.5); opacity: 0; }
+	  30% { transform: translateX(-50%) translateY(-200px) scale(1.3); opacity: 1; } /* 第一次彈跳高點 */
+	  50% { transform: translateX(-50%) translateY(0px) scale(1); } /* 第一次落地 */
+	  65% { transform: translateX(-50%) translateY(-150px) scale(1.1); } /* 第二次彈跳高點 */
+	  80% { transform: translateX(-50%) translateY(0px) scale(1); } /* 第二次落地 */
+	  90% { transform: translateX(-50%) translateY(-60px) scale(1.06); } /* 第三次彈跳高點 */
+	  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } /* 最後落地 */
+	}
 
     @keyframes reveal {
       0% { transform: translateX(-50%) scale(0); opacity: 0; }
