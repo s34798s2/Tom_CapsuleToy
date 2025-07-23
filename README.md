@@ -1,2 +1,2 @@
-# github.io.2
-About Work Data
+# Capsule toy
+扭蛋機小工具
