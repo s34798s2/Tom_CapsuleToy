@@ -4,18 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>扭蛋機</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+     @font-face {
+	  font-family: 'Zpix';
+	  src: url('zpix.ttf') format('truetype');
+	  font-weight: normal;
+	  font-style: normal;
+	}
+	 
+	 
+    html, body {
       margin: 0;
-      background-color: #f0f0f0;
-      font-family: Arial, sans-serif;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
+      background-color: black; /* 設置網頁背景為黑色 */
+    }
+
+    body {
+      font-family: 'Press Start 2P', 'Zpix', monospace;
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.1); /* ✅ 可選：淡黑色遮罩讓前景更清楚 */
+      z-index: -1;
     }
 
     .settings-btn {
@@ -59,97 +84,150 @@
     .gacha-container {
       text-align: center;
     }
+	
+	.gacha-machine-wrapper {
+	  position: relative;
+	  width: 500px;  /* ✅ 固定大小 */
+	  height: 750px;
+	  background-image: url('picture.jpg');  /* ✅ 扭蛋背景圖 */
+	  background-size: cover;
+	  background-position: center;
+	  background-repeat: no-repeat;
+	  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+	}
 
-    .gacha-machine {
-      width: 300px;
-      height: 400px;
-      background-color: #ff6f61;
-      border-radius: 20px;
-      position: relative;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-    }
+	  .gacha-machine {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		  width: 100%;     /* 滿版放在 wrapper 裡 */
+		  height: 100%;
+		  pointer-events: none;  /* 防止點擊穿透，如果有需要 */
+		}
 
-    .gacha-balls {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      height: 300px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-    }
+	.gacha-balls {
+	  position: absolute;
+	  top: 80px;    /* ✅ 絕對座標定位 */
+	  left: 50%;
+	  transform: translateX(-50%);
+	  width: 100%;
+	  display: flex;
+	  justify-content: center;
+	  flex-wrap: wrap;
+	  pointer-events: auto;  /* 要能點擊就打開 */
+	}
 
-    .gacha-ball {
-      width: 50px;
-      height: 50px;
-      background: radial-gradient(circle, #fff 30%, #ffd700 70%);
-      border-radius: 50%;
-      margin: 10px;
-      animation: roll 2s infinite;
-    }
+   
 
-    .selected-ball {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      position: absolute;
-      top: 320px;
-      left: 110px;
-      display: none;
-      animation: bounceOut 1s ease-out forwards;
-    }
+	.selected-ball {
+	  position: absolute;
+	  top: 65%;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  width: 80px;
+	  height: 80px;
+	  border-radius: 50%; /* 雖然是復古，但圓形還是可以保留，或者看您想改成方形也可以喔！ */
+	  display: flex;
+	  justify-content: center;
+	  flex-wrap: wrap;
+	  animation: bounceOut 1s ease-out forwards;
+	  z-index: 3;
 
-    .gacha-result {
-      position: absolute;
-      top: 25%;
-      left: 12%;
-      padding: 20px 40px;
-      font-size: 30px;
-      font-weight: bold;
-      background-color: #fff;
-      color: #ff4500;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      opacity: 0;
-      display: none;
-      animation: reveal 1s 1.5s forwards;
-      z-index: 20;
-    }
+	  /* 復古遊戲風格新增部分 */
+	  image-rendering: pixelated; /* 讓圖片或背景圖呈現像素化效果 */
+	  box-shadow: 
+		4px 4px 0px rgba(0, 0, 0, 0.8), /* 模擬像素邊框的陰影 */
+		-4px -4px 0px rgba(255, 255, 255, 0.3); /* 另一邊的陰影，增加立體感 */
+	  border: 2px solid #333; /* 增加一個深色邊框 */
+	  background-color: #A0A0A0; /* 給一個比較灰暗的背景色，像以前的遊戲畫面 */
+	  font-family: 'Press Start 2P', cursive; /* 這裡可以引入一個像素字體，讓文字也復古 */
+	  color: #FFF; /* 復古字體通常是白色或亮色 */
+	  text-shadow: 2px 2px 0px #000; /* 像素字體的陰影效果 */
+	}
 
-    .gacha-button {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
+	.gacha-result {
+	  font-family: 'Zpix', monospace;
+	  letter-spacing: 1px;
+	  position: absolute;
+	  top: 40%;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  padding: 20px 40px;
+	  font-size: 30px;
+	  font-weight: bold;
+
+	  background-color: #000000; /* 黑底 */
+	  color: #00FF00; /* 綠色字，CRT 復古感 */
+	  
+	  border: 5px solid #00FF00; /* 粗綠邊框 */
+	  border-radius: 0; /* 方角 */
+	  
+	  box-shadow: 
+		4px 4px 0 #006400,  /* 深綠陰影，製造像素立體感 */
+		0 0 10px #00FF00;   /* 螢光感 */
+	  
+	  opacity: 0;
+	  display: none;
+	  
+	  animation: reveal 1s 1.5s forwards;
+	  
+	  z-index: 10;
+	}
+
+	/* 漸顯動畫 */
+	@keyframes reveal {
+	  to {
+		opacity: 1;
+		display: block;
+	  }
+	}
+
+	.gacha-button {
+	  font-family: 'Press Start 2P', 'Zpix', monospace;
+	  letter-spacing: 1px;
+	  position: absolute;
+	  bottom: 38px;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  padding: 12px 24px;
+	  font-size: 24px;
+
+	  background-color: #ffcc00; /* 黃色底 */
+	  color: #000000; /* 黑色字 */
+	  border: 4px solid #000; /* 黑框 */
+	  box-shadow: 4px 4px 0 #333; /* 側邊陰影，做出立體感 */
+	  border-radius: 0; /* 方角符合像素風格 */
+	  
+	  cursor: pointer;
+	  z-index: 2;
+	  transition: all 0.1s ease-in-out;
+	}
+
+	.gacha-button:active {
+	  box-shadow: 0 0 0 #333;
+	  transform: translateX(-50%) translateY(4px);
+	}
 
     .remaining-count {
-      margin-bottom: 10px;
-      font-size: 18px;
-      font-weight: bold;
-    }
+	  margin-top: 30px;  
+	  margin-bottom: 10px;
+	  font-size: 26px;
+	  font-weight: bold;
+	  text-align: center;   
+	  width: 100%;            
+	  color: #ff69b4; 
+	}
 
-    @keyframes roll {
-      0% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(20px) rotate(180deg); }
-      100% { transform: translateY(0) rotate(360deg); }
-    }
 
     @keyframes bounceOut {
-      0% { transform: translateY(-300px) scale(0.5); opacity: 0; }
-      50% { transform: translateY(-150px) scale(1.1); opacity: 1; }
-      100% { transform: translateY(0) scale(1); opacity: 1; }
+      0% { transform: translateX(-50%) translateY(-300px) scale(0.5); opacity: 0; }
+      50% { transform: translateX(-50%) translateY(-150px) scale(1.1); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
     }
 
     @keyframes reveal {
-      0% { transform: scale(0); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      0% { transform: translateX(-50%) scale(0); opacity: 0; }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
     }
 
     @keyframes flash {
@@ -157,14 +235,14 @@
       50% { background-color: #ffe066; }
     }
 
+	
     .flash-bg {
       animation: flash 0.2s alternate 10;
     }
 
-    /* SSR 特效 */
     .ssr-effect {
-      color: #FFD700;
-      background: radial-gradient(circle, #fff, #ff69b4);
+      color: #000000;
+      background: #ffd700;
       border: 4px solid gold;
       text-shadow: 0 0 10px #FFD700, 0 0 20px #FF69B4;
       box-shadow: 0 0 30px #FFD700;
@@ -172,8 +250,8 @@
     }
 
     @keyframes ssrGlow {
-      from { transform: scale(1); opacity: 1; }
-      to { transform: scale(1.1); opacity: 0.85; }
+      from { transform: translateX(-50%) scale(1); opacity: 1; }
+      to { transform: translateX(-50%) scale(1.1); opacity: 0.85; }
     }
   </style>
 </head>
@@ -187,39 +265,32 @@
     <button onclick="updatePrizes()">更新</button>
   </div>
 
-  <div class="gacha-container">
-    <div class="remaining-count" id="remainingCount">剩餘：0 顆</div>
-    <div class="gacha-machine">
-      <div class="gacha-balls" id="gachaBalls">
-        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ffcc00);"></div>
-        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #66ccff);"></div>
-        <div class="gacha-ball" style="background: radial-gradient(circle, #fff, #ff99cc);"></div>
-      </div>
-      <div class="selected-ball" id="selectedBall"></div>
-      <div class="gacha-result" id="result"></div>
-    </div>
-    <button class="gacha-button" id="gachaButton" onclick="spinGacha()">扭蛋</button>
+  <div >
+    
+	
+	<div class="gacha-machine-wrapper">
+		
+		<div class="gacha-machine">
+		  <div class="remaining-count" id="remainingCount">BALLS LEFT: 0</div>
+		  <div class="gacha-balls" id="gachaBalls">
+			
+		  </div>
+		  <div class="selected-ball" id="selectedBall"></div>
+		  <div class="gacha-result" id="result"></div>
+		</div>
+	</div>
+    
+    <button class="gacha-button" id="gachaButton" onclick="spinGacha()"> START </button>
   </div>
 
-  <!-- 音效 -->
   <audio id="drawSound" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
 
   <script>
-    // --- 變更開始 ---
-
-    // 1. 將獎項內容和設定狀態宣告成全域變數，並給予預設值
     let prizePool = [];
-    let rawInput = "[特獎]*1\n二獎*2\n三獎*5"; // 預設獎項內容
-    let removeAfterDrawState = true; // 「抽後刪除」的預設狀態
-
-    // --- 變更結束 ---
+    let rawInput = "[特獎]*1\n二獎*2\n三獎*5";
+    let removeAfterDrawState = true;
 
     function parsePrizeInput(input) {
-      // --- 變更開始 ---
-      // 2. 刪除這行，不然每次更新都會重置為預設值
-      // document.getElementById("inputPrizes").value = "[特獎]*1\n二等獎*2";
-      // --- 變更結束 ---
-
       const lines = input.trim().split('\n');
       const result = [];
       lines.forEach(line => {
@@ -235,21 +306,16 @@
 
     function updatePrizePoolDisplay() {
       const remaining = prizePool.length;
-      document.getElementById("remainingCount").textContent = `剩餘：${remaining} 顆`;
+      document.getElementById("remainingCount").textContent = `BALLS LEFT : ${remaining}`;
     }
 
     function updatePrizes() {
       const input = document.getElementById("inputPrizes").value;
-      
-      // --- 變更開始 ---
-      // 3. 按下更新時，儲存目前的設定到全域變數中
       rawInput = input;
       removeAfterDrawState = document.getElementById("removeAfterDraw").checked;
-      // --- 變更結束 ---
-
       prizePool = parsePrizeInput(input);
       updatePrizePoolDisplay();
-      toggleSettings(true); // 直接關閉設定面板
+      toggleSettings(true);
     }
 
     function toggleSettings(forceClose = null) {
@@ -257,15 +323,11 @@
       const resultElement = document.getElementById("result");
       resultElement.style.display = 'none';
       resultElement.style.opacity = '0';
-      
       const shouldDisplay = forceClose === null ? panel.style.display !== "block" : !forceClose;
 
       if (shouldDisplay) {
-        // --- 變更開始 ---
-        // 4. 打開設定面板前，從變數讀取儲存的設定並顯示
         document.getElementById("inputPrizes").value = rawInput;
         document.getElementById("removeAfterDraw").checked = removeAfterDrawState;
-        // --- 變更結束 ---
         panel.style.display = "block";
       } else {
         panel.style.display = "none";
@@ -300,11 +362,7 @@
       const selectedBall = document.getElementById('selectedBall');
       const resultElement = document.getElementById('result');
       const machine = document.querySelector('.gacha-machine');
-      
-      // --- 變更開始 ---
-      // 5. 抽獎時，直接讀取儲存的狀態變數
       const removeAfterDraw = removeAfterDrawState;
-      // --- 變更結束 ---
 
       resultElement.style.display = 'none';
       selectedBall.style.display = 'none';
@@ -323,12 +381,12 @@
         gachaBalls.classList.remove('shake');
         selectedBall.style.background = getRandomColor();
         selectedBall.style.display = 'block';
-        
+
         const randomIndex = Math.floor(Math.random() * prizePool.length);
         const rawPrize = prizePool[randomIndex];
         const isSSR = isSSRPrize(rawPrize);
         const prize = cleanPrizeName(rawPrize);
-        
+
         if (isSSR) {
           machine.classList.add('flash-bg');
         }
@@ -351,15 +409,11 @@
       }, 1000);
     }
 
-    // --- 變更開始 ---
-    // 6. 預設載入時，將預設值填入設定面板，然後呼叫 updatePrizes() 初始化獎池
     window.onload = () => {
       document.getElementById('inputPrizes').value = rawInput;
       document.getElementById('removeAfterDraw').checked = removeAfterDrawState;
       updatePrizes();
     };
-    // --- 變更結束 ---
   </script>
-   
 </body>
 </html>
